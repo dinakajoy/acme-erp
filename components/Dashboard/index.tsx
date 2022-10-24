@@ -1,12 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
+import {
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useLocation,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Layout from "../reusables/Layout";
 import Chart from "./Chart";
 import Deposits from "./Deposits";
 import Orders from "./Orders";
+import { useAppSelector } from "../../redux/hooks";
+import { getLoggedInUser } from "../../redux/slices/authSlice";
 
 function Dashboard() {
+  const navigate = useNavigate();
+  let location = useLocation();
+  const isLoggedInUser = useAppSelector(getLoggedInUser);
+
+  if (!isLoggedInUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
   return (
     <Layout>
       <Grid container spacing={3}>

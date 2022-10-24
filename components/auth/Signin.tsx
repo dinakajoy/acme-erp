@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { redirect } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -14,55 +14,46 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import { useAppDispatch } from "../../redux/hooks";
-import { setCredentials } from "../../redux/slices/authSlice";
+import { useAppSelector, useAppDispatch } from "../../redux/hooks";
+import { setLoggedInUser, getLoggedInUser } from "../../redux/slices/authSlice";
 
 const theme = createTheme();
 
 export default function SignIn() {
   let navigate = useNavigate();
   let location = useLocation();
+  let auth = useAuth();
 
-  const [error, setError] = useState("");
+  let from = location.state?.from?.pathname || "/";
 
-  let from = location.state?.from?.pathname || "/dashboard";
 
   const dispatch = useAppDispatch();
+  const isLoggedInUser = useAppSelector(getLoggedInUser);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const email = data.get("email");
-    const password = data.get("password");
-    if (email === "" || password === "") {
-      setError("Please fill in all fields");
-    } else {
-      try {
-        const user = await fetch("http://localhost:1337/auth/login", {
-          method: "POST",
-          body: JSON.stringify({
-            email: data.get("email"),
-            password: data.get("password"),
-          }),
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-        });
-        const userJson = await user.json();
-        console.log("userJson", userJson);
-        if (userJson.status === "error") {
-          Array.isArray(userJson.error)
-            ? setError(userJson.error[0].msg)
-            : setError(userJson.error);
-        } else {
-          // dispatch(setCredentials(userJson));
-          navigate(from, { replace: true });
-        }
-      } catch (error: any) {
-        console.log("error", error);
-      }
-    }
+    const user = await fetch("/myserver.endpoint", {
+      method: "POST",
+      body: JSON.stringify({
+        email: data.get("email"),
+        password: data.get("password"),
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const userJson = await user.json();
+    dispatch(setLoggedInUser(userJson));
   };
+
+  useEffect(() => {
+    if (isLoggedInUser) {
+     return () => {
+      redirect("/dashboard");
+    };
+    }
+  }, [isLoggedInUser]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -95,7 +86,6 @@ export default function SignIn() {
               id="email"
               label="Email Address"
               name="email"
-              type="email"
               autoComplete="email"
               autoFocus
             />
@@ -103,23 +93,16 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="password"
-              label="Password"
               name="password"
+              label="Password"
               type="password"
+              id="password"
               autoComplete="current-password"
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Typography variant="subtitle2" component="p" color="error">
-                  {error}
-                </Typography>
-              </Grid>
-            </Grid>
             <Button
               type="submit"
               fullWidth
