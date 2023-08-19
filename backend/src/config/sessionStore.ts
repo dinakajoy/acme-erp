@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import session from 'express-session';
+import RedisStore from "connect-redis";
 import logger from './logger';
 import redisClient from './redisClient';
-
-const RedisStore = require('connect-redis')(session);
 
 const store = new RedisStore({ client: redisClient });
 

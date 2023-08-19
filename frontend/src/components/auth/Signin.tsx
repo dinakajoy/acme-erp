@@ -38,11 +38,11 @@ export default function SignIn() {
       setError("Please fill in all fields");
     } else {
       try {
-        const user = await fetch("http://localhost:1337/auth/login", {
+        const user = await fetch(process.env.PUBLIC_URL_API_URL || "http://localhost:1337/auth/login", {
           method: "POST",
           body: JSON.stringify({
-            email: data.get("email"),
-            password: data.get("password"),
+            email,
+            password,
           }),
           headers: {
             "Content-type": "application/json; charset=UTF-8",
