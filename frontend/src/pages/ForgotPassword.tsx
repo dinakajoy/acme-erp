@@ -1,8 +1,7 @@
-import * as React from "react";
+import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -10,17 +9,38 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { postOrPutData } from "../utils/apiRequests";
+import { EmailInput } from "../components/FormElements";
 
 const theme = createTheme();
 
 export default function ForgotPassword() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [error, setError] = useState("");
+  const [response, setResponse] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    const email = data.get("email");
+    if (email === "") {
+      setResponse("");
+      setError("Please fill in all fields");
+    } else {
+      try {
+        const userJson = await postOrPutData('auth/forgot-password', {email}, 'POST');
+        if (userJson.status === "error") {
+          setResponse("");
+          Array.isArray(userJson.error)
+            ? setError(userJson.error[0].msg)
+            : setError(userJson.errors);
+        } else {
+          setError("");
+          setResponse("Please check your mail for further details")
+        }
+      } catch (error: any) {
+        console.log("error", error);
+      }
+    }
   };
 
   return (
@@ -39,7 +59,7 @@ export default function ForgotPassword() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Forgot Password
           </Typography>
           <Box
             component="form"
@@ -47,16 +67,23 @@ export default function ForgotPassword() {
             noValidate
             sx={{ mt: 1 }}
           >
-            <TextField
-              margin="normal"
+            <EmailInput
               required
               fullWidth
               id="email"
               label="Email Address"
               name="email"
+              type="email"
               autoComplete="email"
               autoFocus
             />
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Typography variant="subtitle2" component="p" color={error ? "error": "success"}>
+                  {error || response}
+                </Typography>
+              </Grid>
+            </Grid>
             <Button
               type="submit"
               fullWidth
@@ -67,7 +94,7 @@ export default function ForgotPassword() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/" variant="body2">
                   Remember password? Sign in
                 </Link>
               </Grid>

@@ -1,18 +1,18 @@
 import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
-import RequireAuth from "./App/auth/RequireAuth";
+import RequireAuth from "./utils/auth/RequireAuth";
 import LoadingIndicator from "./components/Loaders/Circular";
 import reloadOnFail from "./utils/reloadOnFail";
-import "./App.css";
+// import "./App.css";
 
 const SignInPage = lazy(() =>
-  reloadOnFail(() => import("./components/auth/Signin"))
+  reloadOnFail(() => import("./pages/Signin"))
 );
 const ForgotPasswordPage = lazy(() =>
-  reloadOnFail(() => import("./components/auth/ForgotPassword"))
+  reloadOnFail(() => import("./pages/ForgotPassword"))
 );
 const ResetPasswordPage = lazy(() =>
-  reloadOnFail(() => import("./components/auth/ResetPassword"))
+  reloadOnFail(() => import("./pages/ResetPassword"))
 );
 const Dashboard = lazy(() =>
   reloadOnFail(() => import("./components/Dashboard"))

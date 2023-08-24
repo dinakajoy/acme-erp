@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
@@ -14,8 +13,10 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import { useAppDispatch } from "../../redux/hooks";
-import { setCredentials } from "../../redux/slices/authSlice";
+import { useAppDispatch } from "../redux/hooks";
+import { setCredentials } from "../redux/slices/authSlice";
+import { EmailInput, PasswordInput } from "../components/FormElements";
+import { postOrPutData } from "../utils/apiRequests";
 
 const theme = createTheme();
 
@@ -38,22 +39,11 @@ export default function SignIn() {
       setError("Please fill in all fields");
     } else {
       try {
-        const user = await fetch(process.env.PUBLIC_URL_API_URL || "http://localhost:1337/auth/login", {
-          method: "POST",
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-        });
-        const userJson = await user.json();
-        console.log("userJson", userJson);
+        const userJson = await postOrPutData('auth/login', {email, password}, 'POST');
         if (userJson.status === "error") {
           Array.isArray(userJson.error)
             ? setError(userJson.error[0].msg)
-            : setError(userJson.error);
+            : setError(userJson.errors);
         } else {
           // dispatch(setCredentials(userJson));
           navigate(from, { replace: true });
@@ -80,7 +70,7 @@ export default function SignIn() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Sign In
           </Typography>
           <Box
             component="form"
@@ -88,8 +78,7 @@ export default function SignIn() {
             noValidate
             sx={{ mt: 1 }}
           >
-            <TextField
-              margin="normal"
+            <EmailInput
               required
               fullWidth
               id="email"
@@ -99,15 +88,13 @@ export default function SignIn() {
               autoComplete="email"
               autoFocus
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
+            <PasswordInput
               id="password"
               label="Password"
               name="password"
-              type="password"
               autoComplete="current-password"
+              required
+              fullWidth
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}

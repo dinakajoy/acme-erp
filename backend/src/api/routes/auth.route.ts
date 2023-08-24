@@ -1,5 +1,4 @@
 import * as express from 'express';
-import isAuthenticated from '../middlewares/isAuthenticated';
 import acountLimiter from '../middlewares/rateLimiterForLogin';
 import {
   loginValidation,
@@ -35,7 +34,6 @@ router.put(
   '/reset-password',
   resetPasswordValidation(),
   validate,
-  isAuthenticated,
   resetPasswordController
 );
 

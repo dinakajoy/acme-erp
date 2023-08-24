@@ -41,7 +41,11 @@ export const loginController = async (
   if (!user) {
     return next(new (InvalidException as any)());
   }
-  const isCorrectPassword = await comparePassword(password, user.password, next);
+  const isCorrectPassword = await comparePassword(
+    password,
+    user.password,
+    next
+  );
   if (!isCorrectPassword) {
     return next(new (InvalidException as any)());
   }
@@ -91,7 +95,6 @@ export const forgotPasswordController = async (
     },
   });
 
-  console.log('user', user);
   if (!user) {
     // This is returned like this to prevent hackers from confirming unregistered emails
     return res.status(200).json({
@@ -111,7 +114,9 @@ export const forgotPasswordController = async (
     from: process.env.SENDER_EMAIL || 'mymail@mail.com',
     to: user.email,
     subject: 'Account Update',
-    html: `<b>Hey there! <br> This is the link to reset your password as requested <br/> ${accessToken}`,
+    html: `<b>Hey there! <br> This is the link to reset your password as requested <br/> ${
+      process.env.UI_URL || 'http://localhost:3000'
+    }/reset-password?token=${accessToken}`,
   };
 
   console.log('mailData', mailData);
@@ -131,21 +136,28 @@ export const resetPasswordController = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password } = req.body;
-    const hashedPassword = await hashPassword(password, next);
-    const updateUser = await prisma.user.update({
-      where: {
-        email,
-      },
-      data: {
-        password: hashedPassword,
-      },
-    });
-    if (updateUser !== null) {
-      return res.status(200).json({
-        status: 'success',
-        message: 'Password updated successfully',
+    const { email, password, token } = req.body;
+    const decodedToken = await verifyAccessToken(
+      { token, isRefreshToken: false },
+      next
+    );
+    if (decodedToken) {
+      const hashedPassword = await hashPassword(password, next);
+      const updateUser = await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          password: hashedPassword,
+        },
       });
+      if (updateUser !== null) {
+        return res.status(200).json({
+          status: 'success',
+          message: 'Password updated successfully',
+        });
+      }
+      return next(new (CustomException as any)(500, 'Operation unsuccessful'));
     }
     return next(new (CustomException as any)(500, 'Operation unsuccessful'));
   } catch (error: any) {
@@ -196,7 +208,7 @@ export const logoutController = async (
   res: Response,
   next: NextFunction
 ) => {
-  req.session.destroy((err) => {
+  req.session.destroy(err => {
     if (err) {
       logger.error(err.message);
       return next(new (CustomException as any)(500, 'Operation unsuccessful'));

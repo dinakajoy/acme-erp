@@ -16,7 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "./listItems";
-import AuthStatus from "../../../App/auth/AuthStatus";
+import AuthStatus from "../../../utils/auth/AuthStatus";
 
 type Props = {
   children: JSX.Element | JSX.Element[];
