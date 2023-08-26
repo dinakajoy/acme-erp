@@ -1,0 +1,8 @@
+query IfAuthenticatedUserIsStartupStaff($startupId: ID!) {
+  startup(id: $startupId) {
+    _id
+    people {
+      _id
+    }
+  }
+}

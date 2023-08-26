@@ -13,8 +13,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import { useAppDispatch } from "../redux/hooks";
-import { setCredentials } from "../redux/slices/authSlice";
+import { useAuthContext } from "../utils/auth/AuthContext";
 import { EmailInput, PasswordInput } from "../components/FormElements";
 import { postOrPutData } from "../utils/apiRequests";
 
@@ -23,12 +22,11 @@ const theme = createTheme();
 export default function SignIn() {
   let navigate = useNavigate();
   let location = useLocation();
+  const { setAuthToken, setCurrentUser } = useAuthContext();
 
   const [error, setError] = useState("");
 
   let from = location.state?.from?.pathname || "/dashboard";
-
-  const dispatch = useAppDispatch();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -39,13 +37,18 @@ export default function SignIn() {
       setError("Please fill in all fields");
     } else {
       try {
-        const userJson = await postOrPutData('auth/login', {email, password}, 'POST');
+        const userJson = await postOrPutData(
+          "auth/login",
+          { email, password },
+          "POST"
+        );
         if (userJson.status === "error") {
-          Array.isArray(userJson.error)
-            ? setError(userJson.error[0].msg)
-            : setError(userJson.errors);
+          Array.isArray(userJson.errors || userJson.error)
+            ? setError(userJson.errors[0].msg || userJson.error[0].msg)
+            : setError(userJson.errors || userJson.error);
         } else {
-          // dispatch(setCredentials(userJson));
+          setAuthToken(userJson.token);
+          setCurrentUser(userJson.payload);
           navigate(from, { replace: true });
         }
       } catch (error: any) {

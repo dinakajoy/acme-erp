@@ -1,5 +1,3 @@
-// import 'dotenv/config';
-
 export const postOrPutData = async (
   url: string,
   data: any,

@@ -7,6 +7,7 @@ import { store } from "./redux/store";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { AuthProvider } from "./utils/auth/AuthProvider";
 
 const container = document.getElementById("root")!;
 const root = createRoot(container);
@@ -16,9 +17,11 @@ root.render(
     <CssBaseline />
     <Provider store={store}>
       <BrowserRouter>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
+        <AuthProvider>
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+        </AuthProvider>
       </BrowserRouter>
     </Provider>
   </React.StrictMode>

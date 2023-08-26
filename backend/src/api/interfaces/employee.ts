@@ -28,4 +28,5 @@ export interface IEmployee {
   createdBy: string;
   updatedBy: string;
   password: string;
+  resetPasswordToken?: string | null;
 }

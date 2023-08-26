@@ -27,15 +27,19 @@ export default function ForgotPassword() {
       setError("Please fill in all fields");
     } else {
       try {
-        const userJson = await postOrPutData('auth/forgot-password', {email}, 'POST');
+        const userJson = await postOrPutData(
+          "auth/forgot-password",
+          { email },
+          "POST"
+        );
         if (userJson.status === "error") {
           setResponse("");
-          Array.isArray(userJson.error)
-            ? setError(userJson.error[0].msg)
-            : setError(userJson.errors);
+          Array.isArray(userJson.errors || userJson.error)
+            ? setError(userJson.errors[0].msg || userJson.error[0].msg)
+            : setError(userJson.errors || userJson.error);
         } else {
           setError("");
-          setResponse("Please check your mail for further details")
+          setResponse("Please check your mail for further details");
         }
       } catch (error: any) {
         console.log("error", error);
@@ -79,7 +83,11 @@ export default function ForgotPassword() {
             />
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Typography variant="subtitle2" component="p" color={error ? "error": "success"}>
+                <Typography
+                  variant="subtitle2"
+                  component="p"
+                  color={error ? "error" : "success"}
+                >
                   {error || response}
                 </Typography>
               </Grid>

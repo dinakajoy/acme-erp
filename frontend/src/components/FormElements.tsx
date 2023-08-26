@@ -10,30 +10,11 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import PersonIcon from "@mui/icons-material/Person";
 
-export const UsernameInput = (props: any) => {
-  return (
-    <FormControl variant="outlined" fullWidth margin="normal">
-      <InputLabel htmlFor={props.id}>Username</InputLabel>
-      <OutlinedInput
-        endAdornment={
-          <InputAdornment position="end">
-            <IconButton aria-label="username" edge="end">
-              <PersonIcon />
-            </IconButton>
-          </InputAdornment>
-        }
-        {...props}
-      />
-    </FormControl>
-  );
-};
-
 export const EmailInput = (props: any) => {
   return (
     <FormControl variant="outlined" fullWidth margin="normal">
       <InputLabel htmlFor={props.id}>Email</InputLabel>
       <OutlinedInput
-        type="text"
         endAdornment={
           <InputAdornment position="end">
             <IconButton aria-label="username" edge="end">

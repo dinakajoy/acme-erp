@@ -3,11 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import RequireAuth from "./utils/auth/RequireAuth";
 import LoadingIndicator from "./components/Loaders/Circular";
 import reloadOnFail from "./utils/reloadOnFail";
-// import "./App.css";
 
-const SignInPage = lazy(() =>
-  reloadOnFail(() => import("./pages/Signin"))
-);
+const SignInPage = lazy(() => reloadOnFail(() => import("./pages/Signin")));
 const ForgotPasswordPage = lazy(() =>
   reloadOnFail(() => import("./pages/ForgotPassword"))
 );
@@ -30,54 +27,54 @@ export default function App() {
   return (
     <React.StrictMode>
       <Suspense fallback={<LoadingIndicator />}>
-        <Suspense fallback={<LoadingIndicator />}>
-          <Routes>
-            <Route path="/" element={<SignInPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route
-              path="/dashboard"
-              element={
-                <RequireAuth>
-                  <Dashboard />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/employees"
-              element={
-                <RequireAuth>
-                  <Employees />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/clients"
-              element={
-                <RequireAuth>
-                  <Clients />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/jobs"
-              element={
-                <RequireAuth>
-                  <Jobs />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/accounts"
-              element={
-                <RequireAuth>
-                  <Accounts />
-                </RequireAuth>
-              }
-            />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path="/" element={<SignInPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Routes>
       </Suspense>
+      <Routes>
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <Dashboard />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/employees"
+          element={
+            <RequireAuth>
+              <Employees />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/clients"
+          element={
+            <RequireAuth>
+              <Clients />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/jobs"
+          element={
+            <RequireAuth>
+              <Jobs />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/accounts"
+          element={
+            <RequireAuth>
+              <Accounts />
+            </RequireAuth>
+          }
+        />
+      </Routes>
     </React.StrictMode>
   );
 }

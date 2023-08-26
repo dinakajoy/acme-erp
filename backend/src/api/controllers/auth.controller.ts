@@ -1,9 +1,6 @@
-/* eslint-disable consistent-return */
-/* eslint-disable no-unused-vars */
 import { PrismaClient } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
 import { omit } from 'lodash';
-import { JwtPayload } from 'jsonwebtoken';
 import {
   signAccessToken,
   verifyAccessToken,
@@ -78,8 +75,8 @@ export const loginController = async (
   req.session.isAuthenticated = refreshToken;
   return res.status(200).json({
     status: 'success',
-    payload: { ...result, accessToken },
-    message: 'Operation successful',
+    payload: result,
+    token: accessToken
   });
 };
 
@@ -97,7 +94,7 @@ export const forgotPasswordController = async (
 
   if (!user) {
     // This is returned like this to prevent hackers from confirming unregistered emails
-    return res.status(200).json({
+    return res.status(404).json({
       status: 'success',
       message: 'Please check your mail',
     });
@@ -110,6 +107,14 @@ export const forgotPasswordController = async (
     isRefreshToken: false,
   };
   const accessToken = await signAccessToken(createToken, next);
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      resetPasswordToken: accessToken,
+    },
+  });
   const mailData = {
     from: process.env.SENDER_EMAIL || 'mymail@mail.com',
     to: user.email,
@@ -119,8 +124,9 @@ export const forgotPasswordController = async (
     }/reset-password?token=${accessToken}`,
   };
 
-  console.log('mailData', mailData);
+  logger.info('mailData', mailData);
   const mailSent = await mail(mailData, next);
+  logger.info('mailSent', mailSent);
   if (!mailSent) {
     return next(new (CustomException as any)(500, 'Operation unsuccessful'));
   }
@@ -136,12 +142,23 @@ export const resetPasswordController = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password, token } = req.body;
-    const decodedToken = await verifyAccessToken(
+    const { password, token } = req.body;
+    const decodedToken = (await verifyAccessToken(
       { token, isRefreshToken: false },
       next
-    );
+    )) as IDecodedToken;
     if (decodedToken) {
+      const email = decodedToken?.payload?.email;
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user || user.resetPasswordToken !== token) {
+        return next(new (CustomException as any)(500, 'Invalid link used'));
+      }
+
       const hashedPassword = await hashPassword(password, next);
       const updateUser = await prisma.user.update({
         where: {
@@ -149,6 +166,7 @@ export const resetPasswordController = async (
         },
         data: {
           password: hashedPassword,
+          resetPasswordToken: null
         },
       });
       if (updateUser !== null) {

@@ -1,0 +1,3 @@
+query IsUserAuthorized($permission: String!, $data: [PermissionData]!) {
+  isUserAuthorized(permission: $permission, data: $data)
+}

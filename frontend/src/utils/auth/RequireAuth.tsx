@@ -1,16 +1,11 @@
-import {
-  useLocation,
-  Navigate,
-} from "react-router-dom";
-import { selectCurrentUser } from "../../redux/slices/authSlice";
-
+import { useLocation, Navigate } from "react-router-dom";
+import { useAuthContext } from "./AuthContext";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   let location = useLocation();
+  const { isAuthenticated } = useAuthContext();
 
-  console.log('selectCurrentUser', selectCurrentUser);
-
-  if (!selectCurrentUser) {
+  if (!isAuthenticated) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 

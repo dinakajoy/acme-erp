@@ -11,21 +11,22 @@ datasource db {
 }
 
 model User {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
-  email      String    @unique
-  phone      String
-  gender     String
-  department String
-  role       String
-  street     String
-  town       String
-  state      String
-  country    String
-  password   String
-  createdBy  String
-  updatedBy  String
-  finance    Finance[]
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  email              String    @unique
+  phone              String
+  gender             String
+  department         String
+  role               String
+  street             String
+  town               String
+  state              String
+  country            String
+  password           String
+  resetPasswordToken String?
+  createdBy          String
+  updatedBy          String
+  finance            Finance[]
 }
 
 model Client {

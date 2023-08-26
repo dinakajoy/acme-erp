@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { postOrPutData } from "../utils/apiRequests";
-import { EmailInput, PasswordInput } from "../components/FormElements";
+import { PasswordInput } from "../components/FormElements";
 
 const theme = createTheme();
 
@@ -25,12 +25,16 @@ export default function ResetPassword() {
     event.preventDefault();
     const token = searchParams.get("token");
     const data = new FormData(event.currentTarget);
-    const email = data.get("email");
     const password = data.get("password");
+    const confirmpassword = data.get("confirmpassword");
+    if (password !== confirmpassword) {
+      setResponse("");
+      setError("Password mismatch, try again!");
+      return;
+    }
     const response = await postOrPutData(
       "auth/reset-password",
       {
-        email,
         password,
         token,
       },
@@ -38,7 +42,9 @@ export default function ResetPassword() {
     );
     if (response.status === "error") {
       setResponse("");
-      setError("Something happened, try again!");
+      Array.isArray(response.errors || response.error)
+        ? setError(response.errors[0].msg || response.error[0].msg)
+        : setError(response.errors || response.error);
     } else {
       setError("");
       setResponse("Password reset successful");
@@ -53,10 +59,10 @@ export default function ResetPassword() {
     if (!token) {
       setResponse("");
       setError("Invalid link");
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
     }
-    setTimeout(() => {
-      navigate("/");
-    }, 3000);
   }, [navigate, searchParams]);
 
   return (
@@ -83,16 +89,6 @@ export default function ResetPassword() {
             noValidate
             sx={{ mt: 1 }}
           >
-            <EmailInput
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              type="email"
-              autoComplete="email"
-              autoFocus
-            />
             <PasswordInput
               id="password"
               label="Password"

@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv-safe';
 import logger from '../../config/logger';
 import { CustomException, InvalidException } from './errors';
-import { ICreateToken, IDecodedToken, IVerifyToken } from '../interfaces/token';
+import { ICreateToken, IVerifyToken } from '../interfaces/token';
 
 dotenv.config();
 
@@ -25,7 +25,7 @@ export const signAccessToken = (
       { payload: payload.employeeInfo },
       payload.isRefreshToken ? refreshTokenSecret : accessTokenSecret,
       { expiresIn: payload.isRefreshToken ? '3d' : '30m' },
-      (err:any, token) => {
+      (err: any, token) => {
         if (err || token === undefined) {
           logger.error(err.message);
           next(new (CustomException as any)(500, 'Unsuccessful operation'));
@@ -39,7 +39,7 @@ export const signAccessToken = (
 export const verifyAccessToken = (
   tokenData: IVerifyToken,
   next: NextFunction
-): Promise<string | jwt.JwtPayload> =>
+) =>
   new Promise((resolve, reject) => {
     jwt.verify(
       tokenData.token,

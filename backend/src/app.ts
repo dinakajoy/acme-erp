@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-unused-vars */
 import express, { Express, Request, Response, NextFunction } from 'express';
 import compression from 'compression';
 import createError from 'http-errors';
@@ -57,7 +55,6 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 1, // 1 day
       secure: process.env.NODE_ENV === 'production',
-      // sameSite: true,
       httpOnly: process.env.NODE_ENV === 'production',
     },
     resave: false,
