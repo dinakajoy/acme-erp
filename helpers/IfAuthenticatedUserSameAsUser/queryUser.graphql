@@ -1,6 +1,0 @@
-query IfSameUserAsOrAuthorizedRole($userId: ID) {
-  user(id: $userId) {
-    _id
-    role
-  }
-}
